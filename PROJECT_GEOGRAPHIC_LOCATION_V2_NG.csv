@@ -1,0 +1,195 @@
+PROJ_ID,GEO_LOC_ID,PLACE_ID,WBG_CNTRY_KEY,ISO_CNTRY_CODE,GEO_LOC_NME,GEO_LATITUDE_NBR,GEO_LONGITUDE_NBR,ADMIN_UNIT1_CODE,ADMIN_UNIT1_NAME,ADMIN_UNIT2_CODE,ADMIN_UNIT2_NAME,FEAT_CLASS_CODE,FEAT_CLASS_NAME,FEAT_CLASS_TEXT,FEAT_CODE,FEAT_NAME,POP_CNT,PROPOSED_IND,ACT_IND,SAP_UPD_DATE,SAP_UPD_USER_ID,UPD_DATE,LAST_CHGD_BY
+P146330,10399958,PLA0072426,,NG,Alaoji Power Station,5.06667,7.32333,,,,,S.PS,power station,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2337706,PLA0072427,,NG,Ilerin,7.6,4.76667,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2337638,PLA0072428,,NG,Ilorin,10.88189,4.00716,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2325190,PLA0072429,,NG,Oyo State,8.0,4.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8634913,PLA0072430,,NG,Kontagora,10.45225,5.4795,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,7730013,PLA0072431,,NG,Yauri,10.77643,4.74197,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2322907,PLA0072432,,NG,Sokoto State,13.08333,5.25,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8634256,PLA0072433,,NG,Hadejia,12.43487,10.05266,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8659873,PLA0072434,,NG,Potiskum,11.71064,11.15721,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2345522,PLA0072435,,NG,Damaturu,11.44188,11.41351,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8659775,PLA0072436,,NG,Jalingo,8.9195,11.32642,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8659808,PLA0072437,,NG,Numan,9.45371,11.83665,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2336575,PLA0072438,,NG,Jalingo,11.3994,10.0587,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2345509,PLA0072439,,NG,Dambam,11.67893,10.70792,,,,,P.PPLA2,seat of a second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2347468,PLA0072440,,NG,Bauchi State,10.5,10.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,9412725,PLA0072441,,NG,Yola,11.6791,9.97466,,,,,A.ADM3,third-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2347283,PLA0072442,,NG,Benin City,6.33815,5.62575,,,,,P.PPLA,seat of a first-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2343982,PLA0072443,,NG,Effurun,5.55629,5.78459,,,,,P.PPLA2,seat of a second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2326168,PLA0072444,,NG,Ondo State,7.16667,5.08333,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8636371,PLA0072445,,NG,Osogbo,7.75963,4.57625,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,9182357,PLA0072446,,NG,Umumba,6.13612,7.33253,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,10376619,PLA0072447,,NG,Ugwuaji,6.40535,7.55722,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,9192328,PLA0072448,,NG,Onitsha-Agu,6.35288,7.70556,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,11205234,PLA0072449,,NG,New Haven,6.46017,7.52197,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2324774,PLA0072450,,NG,Port Harcourt,4.77742,7.0134,,,,,P.PPLA,seat of a first-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2330706,PLA0072451,,NG,Maryland,6.57644,3.36243,,,,,P.PPLX,section of populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2325458,PLA0072452,,NG,Otta,6.66667,3.73333,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2337017,PLA0072453,,NG,Itire,6.49152,3.32557,,,,,P.PPLX,section of populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,7871294,PLA0072454,,NG,Amuwo Odofin,6.472,3.263,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,10418792,PLA0072455,,NG,Akoka,6.52537,3.39657,,,,,P.PPLX,section of populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2339553,PLA0072456,,NG,Alausa,6.60961,3.35658,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2566698,PLA0072457,,NG,Alagba,6.61672,3.30112,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2332121,PLA0072458,,NG,Lekki,6.40948,4.09152,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2338360,PLA0072459,,NG,Ijora Village,6.46667,3.36667,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8632706,PLA0072460,,NG,Birnin Kebbi,12.45832,4.26267,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,8633552,PLA0072461,,NG,Katsina,13.00564,7.61433,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,9410762,PLA0072462,,NG,Kunchi,12.5128,8.27961,,,,,A.ADM3,third-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,6974934,PLA0072463,,NG,Ingawa,12.96083,8.42168,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,10308986,PLA0072464,,NG,Mokwa,9.004,5.98361,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2319078,PLA0072465,,NG,Wawa,9.90222,4.41917,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,7065509,PLA0072466,,NG,Chalawa,11.88313,8.45738,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2317765,PLA0072467,,NG,Zaria,11.11128,7.7227,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2352777,PLA0072468,,NG,Abuja,9.24703,6.93135,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2328925,PLA0072469,,NG,Niger State,10.0,6.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,2323128,PLA0072470,,NG,Shiroro,9.99258,6.81865,,,,,P.PPL,populated place,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,7729910,PLA0072471,,NG,Kankia,12.46667,7.8,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,9411000,PLA0072472,,NG,Dakata,12.02453,8.57909,,,,,A.ADM3,third-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,9410503,PLA0072473,,NG,Dan Agundi,11.98359,8.52297,,,,,A.ADM3,third-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P146330,9410960,PLA0072474,,NG,Kumbotso,11.89041,8.50593,,,,,A.ADM3,third-order administrative division,,,,0,,,,,2018-06-21,RFC-PROJECTS
+P169405,2332459,PLA0080933,,NG,Lagos,6.45407,3.39467,,,,,P.PPLA2,seat of a second-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P169405,2325329,PLA0080994,,NG,Owerri,5.75,7.11667,,,,,P.PPL,populated place,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P169405,9485482,PLA0080995,,NG,Makurdi Local Government Area,7.73753,8.52296,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P169405,2347283,PLA0080996,,NG,Benin City,6.33815,5.62575,,,,,P.PPLA,seat of a first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P169405,2347468,PLA0080997,,NG,Bauchi State,10.5,10.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P169405,2317765,PLA0080998,,NG,Zaria,11.11128,7.7227,,,,,P.PPL,populated place,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,8635167,PLA0081007,,NG,Ekiti,8.11799,5.32035,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,2340451,PLA0081008,,NG,Gombe,10.28969,11.16729,,,,,P.PPLA,seat of a first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,8633821,PLA0081009,,NG,Kano Municipal,11.98157,8.51898,,,,,A.ADM2,second-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,2352947,PLA0081010,,NG,Abeokuta,7.15571,3.34509,,,,,P.PPLA,seat of a first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,2332453,PLA0081011,,NG,Lagos State,6.53774,3.3522,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,2334797,PLA0081012,,NG,Katsina State,12.25,7.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,2335722,PLA0081013,,NG,Kaduna State,10.33333,7.75,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-04-17,RFC-PROJECTS
+P166239,2335196,PLA0081014,,NG,Kano State,11.5,8.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2322907,PLA0081015,,NG,Sokoto State,13.08333,5.25,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2335196,PLA0081016,,NG,Kano State,11.5,8.5,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2335722,PLA0081017,,NG,Kaduna State,10.33333,7.75,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2347468,PLA0081018,,NG,Bauchi State,10.5,10.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2324828,PLA0081019,,NG,Plateau State,9.16667,9.75,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2325190,PLA0081020,,NG,Oyo State,8.0,4.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2595348,PLA0081021,,NG,Nasarawa State,8.5,8.25,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2332785,PLA0081022,,NG,Kwara State,8.5,5.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2597364,PLA0081023,,NG,Kogi State,7.75,6.75,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2595345,PLA0081024,,NG,Ebonyi State,6.25,8.08333,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2347266,PLA0081025,,NG,Benue State,7.33333,8.75,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2565342,PLA0081026,,NG,Adamawa State,9.33333,12.5,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2324433,PLA0081027,,NG,Rivers State,4.74974,6.82766,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2332453,PLA0081028,,NG,Lagos State,6.53774,3.3522,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2337542,PLA0081029,,NG,Imo State,5.5,7.16667,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2595346,PLA0081030,,NG,Ekiti State,7.66667,5.25,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2346794,PLA0081031,,NG,Borno State,11.5,13.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P167156,2565340,PLA0081032,,NG,Abia State,5.41667,7.5,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-04-17,RFC-PROJECTS
+P173104,2597367,PLA0082315,,NG,Yobe State,12.0,11.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-06-22,RFC-PROJECTS
+P173104,2565342,PLA0082316,,NG,Adamawa State,9.33333,12.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-06-22,RFC-PROJECTS
+P173104,2346794,PLA0082317,,NG,Borno State,11.5,13.0,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-06-22,RFC-PROJECTS
+P173104,2328926,PLA0082318,,NG,Federal Republic of Nigeria,10.0,8.0,,,,,PCLI,independent political entity,,A,,0,,,,,2020-06-22,RFC-PROJECTS
+P167183,2328926,PLA0083104,,NG,Federal Republic of Nigeria,10.0,8.0,,,,,A.PCLI,independent political entity,,,,0,,,,,2020-07-07,RFC-PROJECTS
+P163353,2334797,PLA0081414,,NG,Katsina State,12.25,7.5,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2347468,PLA0081415,,NG,Bauchi State,10.5,10.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2597363,PLA0081416,,NG,Kebbi State,11.5,4.0,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2322907,PLA0081417,,NG,Sokoto State,13.08333,5.25,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2327546,PLA0081418,,NG,Ogun State,7.0,3.58333,,,,,A.ADM1,first-order administrative division,,,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2326168,PLA0081419,,NG,Ondo State,7.16667,5.08333,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2597364,PLA0081420,,NG,Kogi State,7.75,6.75,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2350813,PLA0081421,,NG,Akwa Ibom State,5.0,7.83333,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2565340,PLA0081422,,NG,Abia State,5.41667,7.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2332785,PLA0081423,,NG,Kwara State,8.5,5.0,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2324828,PLA0081424,,NG,Plateau State,9.16667,9.75,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2335196,PLA0081425,,NG,Kano State,11.5,8.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2020-05-04,RFC-PROJECTS
+P163353,2334802,PLA0081426,,NG,Katsina,12.99082,7.60177,,,,,PPLA,seat of a first-order administrative division,,P,,0,,,,,2020-05-04,RFC-PROJECTS
+P170664,2332453,PLA0087656,,NG,Lagos State,6.53774,3.3522,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2565344,PLA0087657,,NG,Enugu State,6.5,7.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2326168,PLA0087658,,NG,Ondo State,7.16667,5.08333,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2597364,PLA0087659,,NG,Kogi State,7.75,6.75,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2597365,PLA0087660,,NG,Osun State,7.5,4.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2345891,PLA0087661,,NG,Cross River State,5.75,8.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2327546,PLA0087662,,NG,Ogun State,7.0,3.58333,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2565340,PLA0087663,,NG,Abia State,5.41667,7.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2324433,PLA0087664,,NG,Rivers State,4.74974,6.82766,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2595345,PLA0087665,,NG,Ebonyi State,6.25,8.08333,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2597366,PLA0087666,,NG,Taraba State,8.0,10.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2595347,PLA0087667,,NG,Gombe State,10.25,11.16667,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2347468,PLA0087668,,NG,Bauchi State,10.5,10.0,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2565342,PLA0087669,,NG,Adamawa State,9.33333,12.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2595348,PLA0087670,,NG,Nasarawa State,8.5,8.25,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2595346,PLA0087671,,NG,Ekiti State,7.66667,5.25,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2597367,PLA0087672,,NG,Yobe State,12.0,11.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2322907,PLA0087673,,NG,Sokoto State,13.08333,5.25,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2565345,PLA0087674,,NG,Jigawa State,12.1,9.56,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2595349,PLA0087675,,NG,Zamfara State,12.16667,6.25,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2324828,PLA0087676,,NG,Plateau State,9.16667,9.75,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2334797,PLA0087677,,NG,Katsina State,12.25,7.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2335196,PLA0087678,,NG,Kano State,11.5,8.5,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2335722,PLA0087679,,NG,Kaduna State,10.33333,7.75,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2597363,PLA0087680,,NG,Kebbi State,11.5,4.0,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2346794,PLA0087681,,NG,Borno State,11.5,13.0,,,,,ADM1,first-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2334968,PLA0087682,,NG,Karra,8.54225,6.21536,,,,,PPLQ,abandoned populated place,,P,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2352778,PLA0087683,,NG,Abuja,9.05785,7.49508,,,,,PPLC,capital of a political entity,,P,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,9412056,PLA0087684,,NG,Boko,12.77335,6.48286,,,,,ADM3,third-order administrative division,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2328927,PLA0087685,,NG,Niger Delta,4.83333,6.0,,,,,DLTA,delta,,T,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2330155,PLA0087686,,NG,Middle Belt,8.0,8.0,,,,,RGN,region,,L,,0,,,,,2021-05-24,RFC-PROJECTS
+P170664,2328926,PLA0087687,,NG,Federal Republic of Nigeria,10.0,8.0,,,,,PCLI,independent political entity,,A,,0,,,,,2021-05-24,RFC-PROJECTS
+P177076,2328926,PLA0090300,,NG,Nigeria,10.0,8.0,,,,,,independent political entity,,,,0,,,,,2021-12-10,WB506328
+P177941,2565340,PLA0094141,,NG,,5.41667,7.5,,,,,,first-order administrative division,,,,0,,,,,2022-11-24,WB563789
+P177941,2597363,PLA0094142,,NG,,11.5,4.0,,,,,,first-order administrative division,,,,0,,,,,2022-11-24,WB563789
+P177941,2597366,PLA0094143,,NG,,8.0,10.5,,,,,,first-order administrative division,,,,0,,,,,2022-11-24,WB563789
+P177941,2327546,PLA0094174,,NG,,7.0,3.58333,,,,,,first-order administrative division,,,,0,,,,,2022-11-24,WB563789
+P177941,2328925,PLA0094175,,NG,,10.0,6.0,,,,,,first-order administrative division,,,,0,,,,,2022-11-24,WB563789
+P177941,2350813,PLA0094176,,NG,,5.0,7.83333,,,,,,first-order administrative division,,,,0,,,,,2022-11-24,WB563789
+P177940,2565340,PLA0094397,,NG,,5.41667,7.5,,,,,,first-order administrative division,,,,0,,,,,2023-02-08,WB563789
+P177940,2597363,PLA0094398,,NG,,11.5,4.0,,,,,,first-order administrative division,,,,0,,,,,2023-02-08,WB563789
+P177940,2328925,PLA0094399,,NG,,10.0,6.0,,,,,,first-order administrative division,,,,0,,,,,2023-02-08,WB563789
+P177940,2350813,PLA0094400,,NG,,5.0,7.83333,,,,,,first-order administrative division,,,,0,,,,,2023-02-08,WB563789
+P177940,2327546,PLA0094401,,NG,,7.0,3.58333,,,,,,first-order administrative division,,,,0,,,,,2023-02-08,WB563789
+P177940,2597366,PLA0094402,,NG,,8.0,10.5,,,,,,first-order administrative division,,,,0,,,,,2023-02-08,WB563789
+P179447,2328926,PLA0095951,,NG,Federal Republic of Nigeria,10.0,8.0,,,,,,independent political entity,,,,0,,,,,2023-07-20,WB563779
+P160865,2319133,PLA0092357,,NG,Warri,5.51737,5.75006,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2347330,PLA0092358,,NG,Beli,7.85868,10.97187,,,,,,populated place,,,,0,,,,,2022-07-08,WB563779
+P160865,2347592,PLA0092359,,NG,Baro,8.61565,6.4185,,,,,,populated place,,,,0,,,,,2022-07-08,WB563779
+P160865,7730025,PLA0092360,,NG,Shendam,8.71667,9.5,,,,,,second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2319078,PLA0092361,,NG,Wawa,9.90222,4.41917,,,,,,populated place,,,,0,,,,,2022-07-08,WB563779
+P160865,2334008,PLA0092362,,NG,Kontagora,10.40319,5.4708,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2317765,PLA0092363,,NG,Zaria,11.11128,7.7227,,,,,,populated place,,,,0,,,,,2022-07-08,WB563779
+P160865,2337680,PLA0092364,,NG,Illela,13.73064,5.29777,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2346995,PLA0092365,,NG,Biu,10.61285,12.19458,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2345526,PLA0092366,,NG,Damasak,13.10518,12.50854,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2352848,PLA0092367,,NG,Aboh,5.54781,6.52588,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2323675,PLA0092368,,NG,Sapele,5.89405,5.67666,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2318921,PLA0092369,,NG,Wukari,7.87139,9.77786,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2334756,PLA0092370,,NG,Kaura Namoda,12.59371,6.58648,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2328952,PLA0092371,,NG,Nguru,12.87695,10.45536,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P160865,2324767,PLA0092372,,NG,Potiskum,11.71391,11.08108,,,,,,seat of a second-order administrative division,,,,0,,,,,2022-07-08,WB563779
+P175237,2597364,PLA0091218,,NG,,7.75,6.75,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2347266,PLA0091219,,NG,,7.33333,8.75,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2332785,PLA0091220,,NG,,8.5,5.0,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2322911,PLA0091221,,NG,Sokoto,13.06269,5.24322,,,,,,seat of a first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2595349,PLA0091222,,NG,,12.16667,6.25,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2334802,PLA0091223,,NG,Katsina,12.99082,7.60177,,,,,,seat of a first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2335204,PLA0091264,,NG,Kano,12.00012,8.51672,,,,,,seat of a first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2597366,PLA0091265,,NG,,8.0,10.5,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2597367,PLA0091266,,NG,,12.0,11.5,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2346794,PLA0091267,,NG,,11.5,13.0,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2328926,PLA0091268,,NG,Federal Republic of Nigeria,10.0,8.0,,,,,,independent political entity,,,,0,,,,,2022-04-08,WB563789
+P175237,2597363,PLA0091269,,NG,,11.5,4.0,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2565345,PLA0091270,,NG,,12.1,9.56,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2335727,PLA0091271,,NG,Kaduna,10.52641,7.43879,,,,,,seat of a first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2324828,PLA0091272,,NG,,9.16667,9.75,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2595348,PLA0091273,,NG,,8.5,8.25,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2352776,PLA0091274,,NG,,8.83333,7.16667,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2347470,PLA0091275,,NG,Bauchi,10.31032,9.84388,,,,,,seat of a first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2340451,PLA0091276,,NG,Gombe,10.28969,11.16729,,,,,,seat of a first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2565342,PLA0091277,,NG,,9.33333,12.5,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P175237,2328925,PLA0091278,,NG,,10.0,6.0,,,,,,first-order administrative division,,,,0,,,,,2022-04-08,WB563789
+P176935,2328926,PLA0090845,,NG,,9.081999,8.675277,,,,,,independent political entity,,,,0,,,,,2022-03-17,WB563789
+P179281,2332785,PLA0096465,,NG,,8.5,5.0,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2595347,PLA0096466,,NG,,10.25,11.16667,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2597364,PLA0096467,,NG,,7.75,6.75,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2595348,PLA0096468,,NG,,8.5,8.25,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2322907,PLA0096469,,NG,,13.08333,5.25,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2597367,PLA0096470,,NG,,12.0,11.5,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2347468,PLA0096471,,NG,,10.5,10.0,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2565345,PLA0096472,,NG,,12.1,9.56,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2328925,PLA0096473,,NG,,10.0,6.0,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2595349,PLA0096474,,NG,,12.16667,6.25,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
+P179281,2565342,PLA0096475,,NG,,9.33333,12.5,,,,,,first-order administrative division,,,,0,,,,,2024-01-08,WB563789
