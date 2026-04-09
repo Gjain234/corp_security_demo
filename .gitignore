@@ -1,13 +1,10 @@
 # Large/sensitive source data files - do not commit
 acled_kri_enriched.xlsx
 acled_kri_enriched_llm_targets.xlsx
-acled_kri_enriched_llm_targets.csv
-NGA_LGA_Boundaries_2_7839795478074887427.geojson
-nigeria_project_data.csv
-PROJECT_GEOGRAPHIC_LOCATION_V2.csv
-
 # Python
 __pycache__/
 *.pyc
 .venv/
 *.xlsx
+
+.DS_Store*
