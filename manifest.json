@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "English_United States.1252",
+  "metadata": {
+    "appmode": "python-dash",
+    "entrypoint": "app"
+  },
+  "python": {
+    "version": "3.12.12",
+    "package_manager": {
+      "name": "pip",
+      "version": "26.0.1",
+      "package_file": "requirements.txt"
+    }
+  },
+  "files": {
+    "requirements.txt": {
+      "checksum": "23a7e65f991718ebd4c0a2900a0976ac"
+    },
+    ".gitignore": {
+      "checksum": "6b90bc6e6b36d97592d1b420c78ed9fe"
+    },
+    "NGA_LGA_Boundaries_2_7839795478074887427.geojson": {
+      "checksum": "b87b02889cceb39b2604ca0f8ce5b8e7"
+    },
+    "PROJECT_GEOGRAPHIC_LOCATION_V2.csv": {
+      "checksum": "1fafae16eceecb3006a33f52f276dbb3"
+    },
+    "PROJECT_GEOGRAPHIC_LOCATION_V2_NG.csv": {
+      "checksum": "6ca6146163988482885b67599042ed13"
+    },
+    "README.md": {
+      "checksum": "46df54a62666b6350f2034340cf55c96"
+    },
+    "acled_armed_clash.csv": {
+      "checksum": "0ea07d584767db3271f8f0be0ac2ac54"
+    },
+    "acled_kri_enriched.xlsx": {
+      "checksum": "ad60cb1c5f9c894461948b6603b155bd"
+    },
+    "acled_kri_enriched_llm_targets.xlsx": {
+      "checksum": "d46989ea8ac75c520d41991ed16360c9"
+    },
+    "app.py": {
+      "checksum": "4b53442a7c72ec38c6f3515d9ce3f002"
+    },
+    "nigeria_project_data.csv": {
+      "checksum": "8cb26431a36878bb1314451acb3021ed"
+    },
+    "test.ipynb": {
+      "checksum": "6dc84b24d0bdfb15bd8fbcea4ac36a9d"
+    }
+  }
+}
