@@ -13,12 +13,20 @@
       "package_file": "requirements.txt"
     }
   },
+  "environment": {
+    "python": {
+      "requires": "==3.11.9"
+    }
+  },
   "files": {
     "requirements.txt": {
       "checksum": "23a7e65f991718ebd4c0a2900a0976ac"
     },
     ".gitignore": {
       "checksum": "6b90bc6e6b36d97592d1b420c78ed9fe"
+    },
+    ".python-version": {
+      "checksum": "a8d144c1af57772a7aa7231d7702c21b"
     },
     "NGA_LGA_Boundaries_2_7839795478074887427.geojson": {
       "checksum": "b87b02889cceb39b2604ca0f8ce5b8e7"
