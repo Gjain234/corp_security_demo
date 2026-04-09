@@ -14,7 +14,7 @@ from dash import Input, Output, State, dash_table, dcc, html
 DATA_FILE = "acled_armed_clash.csv"
 BOUNDARY_FILE = "NGA_LGA_Boundaries_2_7839795478074887427.geojson"
 PROJECT_DATA_FILE = "nigeria_project_data.csv"
-PROJECT_LOCATION_FILE = "PROJECT_GEOGRAPHIC_LOCATION_V2.csv"
+PROJECT_LOCATION_FILE = "PROJECT_GEOGRAPHIC_LOCATION_V2_NG.csv"
 MAP_CENTER = {"lat": 9.082, "lon": 8.6753}
 LIKELIHOOD_RISK_THRESHOLD = 4
 
