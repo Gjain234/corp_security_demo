@@ -163,13 +163,19 @@ def load_project_locations(lga_gdf):
     project_details = project_details.drop_duplicates(subset=["PROJ_ID"])
     valid_project_ids = set(project_details["PROJ_ID"].tolist())
 
-    geo = read_csv_with_fallback(PROJECT_LOCATION_FILE, skiprows=4, low_memory=False)
-    geo.columns = [str(col).strip().strip('"') for col in geo.columns]
-
     required_geo_cols = ["PROJ_ID", "ISO_CNTRY_CODE", "GEO_LOC_NME", "GEO_LATITUDE_NBR", "GEO_LONGITUDE_NBR"]
+
+    # Support both raw source exports (header starts after 4 metadata rows)
+    # and pre-filtered CSVs that already start with the true header at row 1.
+    geo = read_csv_with_fallback(PROJECT_LOCATION_FILE, low_memory=False)
+    geo.columns = [str(col).strip().strip('"') for col in geo.columns]
     missing_geo_cols = [col for col in required_geo_cols if col not in geo.columns]
     if missing_geo_cols:
-        raise ValueError(f"Missing required columns in PROJECT_GEOGRAPHIC_LOCATION_V2.csv: {missing_geo_cols}")
+        geo = read_csv_with_fallback(PROJECT_LOCATION_FILE, skiprows=4, low_memory=False)
+        geo.columns = [str(col).strip().strip('"') for col in geo.columns]
+        missing_geo_cols = [col for col in required_geo_cols if col not in geo.columns]
+        if missing_geo_cols:
+            raise ValueError(f"Missing required columns in {PROJECT_LOCATION_FILE}: {missing_geo_cols}")
 
     geo["PROJ_ID"] = geo["PROJ_ID"].astype(str).str.strip()
     geo["ISO_CNTRY_CODE"] = geo["ISO_CNTRY_CODE"].astype(str).str.strip().str.upper()
