@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 from dash import Input, Output, State, dash_table, dcc, html
 
 
-DATA_FILE = "acled_kri_enriched_llm_targets.xlsx"
+DATA_FILE = "acled_armed_clash.csv"
 BOUNDARY_FILE = "NGA_LGA_Boundaries_2_7839795478074887427.geojson"
 PROJECT_DATA_FILE = "nigeria_project_data.csv"
 PROJECT_LOCATION_FILE = "PROJECT_GEOGRAPHIC_LOCATION_V2.csv"
@@ -51,7 +51,7 @@ IMPACT_RISK_SCORES = {
 
 
 def load_data():
-    events = pd.read_excel(DATA_FILE)
+    events = pd.read_csv(DATA_FILE)
 
     actor1_col = "actor_1" if "actor_1" in events.columns else "actor1"
     actor2_col = "actor_2" if "actor_2" in events.columns else "actor2" if "actor2" in events.columns else None
