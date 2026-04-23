@@ -834,8 +834,54 @@ def build_lga_events_figure(filtered_df, selected_lga):
         return build_empty_events_map("Select an LGA to view event locations.")
 
     lga_df = filtered_df[filtered_df["lga_key"] == selected_lga].copy()
-    if lga_df.empty:
-        return build_empty_events_map("No events found in this LGA for the selected period.")
+    no_events = lga_df.empty
+
+    # Compute map center and zoom from LGA geometry regardless of whether events exist
+    selected_shape = LGA_BASE[LGA_BASE["lga_key"].eq(selected_lga)]
+    if not selected_shape.empty:
+        geom = selected_shape.iloc[0].geometry
+        centroid = geom.centroid
+        minx, miny, maxx, maxy = geom.bounds
+        lon_span = max(float(maxx - minx), 1e-6)
+        lat_span = max(float(maxy - miny), 1e-6)
+        padded_span = max(lon_span, lat_span) * 1.5
+        dynamic_zoom = float(max(5.3, min(9.5, 8.0 - math.log(padded_span, 2))))
+        map_center = {"lat": float(centroid.y), "lon": float(centroid.x)}
+    else:
+        map_center = MAP_CENTER
+        dynamic_zoom = 9.0
+
+    if no_events:
+        figure = go.Figure()
+        figure.update_layout(
+            map_style="open-street-map",
+            map_center=map_center,
+            map_zoom=dynamic_zoom,
+            margin={"l": 0, "r": 0, "t": 0, "b": 0},
+            showlegend=False,
+        )
+        figure.add_annotation(
+            x=0.5, y=0.02, xref="paper", yref="paper",
+            text="No events in this LGA for the selected period / target group",
+            showarrow=False,
+            font={"size": 13, "color": "#475569"},
+            bgcolor="rgba(255,255,255,0.80)",
+            borderpad=6,
+        )
+        # Still draw the boundary so the user knows where the LGA is
+        if not selected_shape.empty:
+            boundary = selected_shape.iloc[0].geometry.boundary
+            def _add_line(coords, color, width):
+                figure.add_trace(go.Scattermap(
+                    lon=[c[0] for c in coords], lat=[c[1] for c in coords],
+                    mode="lines", line={"color": color, "width": width},
+                    hoverinfo="skip", showlegend=False,
+                ))
+            segs = [boundary] if boundary.geom_type == "LineString" else list(boundary.geoms)
+            for seg in segs:
+                _add_line(list(seg.coords), "rgba(34,197,94,0.35)", 12)
+                _add_line(list(seg.coords), "#111111", 3)
+        return figure
 
     lga_df["event_date_label"] = pd.to_datetime(lga_df["event_date"], errors="coerce").dt.strftime("%Y-%m-%d")
     lga_df["civilian_fatalities"] = pd.to_numeric(lga_df["civilian_fatalities"], errors="coerce").fillna(0).astype(int)
@@ -852,22 +898,6 @@ def build_lga_events_figure(filtered_df, selected_lga):
         )
     else:
         lga_df["event_note_short"] = ""
-
-    selected_shape = LGA_BASE[LGA_BASE["lga_key"].eq(selected_lga)]
-    if not selected_shape.empty:
-        geom = selected_shape.iloc[0].geometry
-        centroid = geom.centroid
-        minx, miny, maxx, maxy = geom.bounds
-        lon_span = max(float(maxx - minx), 1e-6)
-        lat_span = max(float(maxy - miny), 1e-6)
-        padded_span = max(lon_span, lat_span) * 1.5
-        dynamic_zoom = float(max(5.3, min(9.5, 8.0 - math.log(padded_span, 2))))
-        map_center = {"lat": float(centroid.y), "lon": float(centroid.x)}
-    else:
-        mean_lat = float(pd.to_numeric(lga_df["latitude"], errors="coerce").mean())
-        mean_lon = float(pd.to_numeric(lga_df["longitude"], errors="coerce").mean())
-        map_center = MAP_CENTER if pd.isna(mean_lat) or pd.isna(mean_lon) else {"lat": mean_lat, "lon": mean_lon}
-        dynamic_zoom = 9.0
 
     lga_df = lga_df.reset_index(drop=True)
     lga_df["lat_plot"] = lga_df["latitude"]
