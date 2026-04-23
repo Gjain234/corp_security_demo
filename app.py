@@ -1,4 +1,4 @@
-﻿import json
+import json
 import math
 from collections import Counter
 from functools import lru_cache
@@ -22,20 +22,47 @@ PROJECT_LOCATION_FILE = "PROJECT_GEOGRAPHIC_LOCATION_V2_NG.csv"
 # Risk and scoring constants
 TARGET_RISK_SCORES = {
     "None of these": 0,
-    "Civilians": 4,
-    "Military": 3,
-    "Police": 3,
-    "Government (Employees and offices)": 2,
-    "Other": 1,
+    "Militant Leaders": 1,
+    "Militant Troops/Infrastructure": 1,
+    "Military (Troops and infrastructure)": 2,
+    "Police (Troops and infrastructure)": 2,
+    "Information (Radio/TV/Broadcasters)": 2,
+    "Vehicle/Transport": 2,
+    "Government (Employees and offices)": 3,
+    "Local leaders/Administrators": 3,
+    "Students": 3,
+    "Political Candidates": 3,
+    "UN DPKO Mission": 3,
+    "Private Business or Residence": 3,
+    "Local NGOs": 4,
+    "Diplomatic Missions": 4,
+    "Critical Civilian (Energy, water, road, train, airport, hospital)": 4,
+    "Foreign Expatriates": 5,
+    "UN AFPs (Not including DPKO)": 5,
+    "State Development Agencies": 5,
+    "INGO (Staff and Offices)": 5,
+    "International Financial Institution (e.g. WBG, IMF, EBRD, ADB, IADB)": 5,
 }
-SEVERITY_SCORES = {
-    "Unknown": 1,
-    "Low": 2,
-    "Medium": 3,
-    "High": 4,
+IMPACT_TYPE_SCORES = {
+    "Low/Moderate": 2,
+    "Substantial/High": 4,
 }
+TARGET_GROUP_NAMES = {
+    0: "All Events",
+    1: "Armed Non-State Actors",
+    2: "State Security Forces",
+    3: "Government & Local Civilians",
+    4: "Aid Workers & Critical Sites",
+    5: "International & Expatriate Staff",
+}
+TARGET_GROUP_OPTIONS = [
+    {"label": f"Score {s}: {TARGET_GROUP_NAMES[s]}", "value": str(s)}
+    for s in [1, 2, 3, 4, 5]
+] + [{"label": "All Events", "value": "0"}]
+
 EXPOSURE_RISK_THRESHOLD = 4
-IMPACT_BINS = [-float("inf"), 25, 50, 100, float("inf")]
+# Impact bins for avg impact score (0–4 scale)
+IMPACT_BINS = [-0.001, 0.001, 2.0, 3.0, 4.001]
 LIKELIHOOD_BAND_MAP = {
     "Very Unlikely": 0,
     "Unlikely": 1,
@@ -90,7 +117,6 @@ def spatial_join_events(armed_df, lga_gdf):
 
 def load_project_locations(lga_gdf):
     def read_csv_with_fallback(path, **kwargs):
-        # Source extracts may have mixed encodings and a few malformed rows.
         last_exc = None
         for encoding in [None, "utf-8-sig", "cp1252", "latin-1"]:
             for engine in ["c", "python"]:
@@ -99,9 +125,7 @@ def load_project_locations(lga_gdf):
                     read_kwargs["encoding"] = encoding
                 read_kwargs["engine"] = engine
 
-                # Python engine can tolerate occasional bad rows in vendor extracts.
                 if engine == "python":
-                    # low_memory is only valid for the C engine.
                     read_kwargs.pop("low_memory", None)
                     read_kwargs.setdefault("on_bad_lines", "skip")
 
@@ -118,7 +142,6 @@ def load_project_locations(lga_gdf):
     if "PROJ_ID" not in projects.columns:
         raise ValueError("Missing PROJ_ID in nigeria_project_data.csv")
 
-    # Keep one row of metadata per project ID for hover details.
     project_cols = [
         "PROJ_ID",
         "PROJ_DISPLAY_NAME",
@@ -134,8 +157,6 @@ def load_project_locations(lga_gdf):
 
     required_geo_cols = ["PROJ_ID", "ISO_CNTRY_CODE", "GEO_LOC_NME", "GEO_LATITUDE_NBR", "GEO_LONGITUDE_NBR"]
 
-    # Support both raw source exports (header starts after 4 metadata rows)
-    # and pre-filtered CSVs that already start with the true header at row 1.
     geo = read_csv_with_fallback(PROJECT_LOCATION_FILE, low_memory=False)
     geo.columns = [str(col).strip().strip('"') for col in geo.columns]
     missing_geo_cols = [col for col in required_geo_cols if col not in geo.columns]
@@ -198,11 +219,11 @@ def load_project_locations(lga_gdf):
     return pd.DataFrame(project_joined)
 
 
-def calculate_impact_score(target, severity_type):
-    """Calculate impact score as target_score × severity_score."""
-    target_score = TARGET_RISK_SCORES.get(str(target).strip() if pd.notna(target) else "None of these", 0)
-    severity_score = SEVERITY_SCORES.get(str(severity_type).strip() if pd.notna(severity_type) else "Unknown", 0)
-    return target_score * severity_score
+def get_impact_type_score(impact_type):
+    """Return numeric score for an impact type label; 0 for unassigned/unknown."""
+    if pd.isna(impact_type) or not str(impact_type).strip():
+        return 0
+    return IMPACT_TYPE_SCORES.get(str(impact_type).strip(), 0)
 
 
 def parse_multi_value(cell):
@@ -255,39 +276,32 @@ def summarize_lga(lga_key, filtered_df, actor1_col, actor2_col):
 
     total_deaths = pd.to_numeric(lga_df["fatalities"], errors="coerce").fillna(0).sum()
     civilian_deaths = pd.to_numeric(lga_df["civilian_fatalities"], errors="coerce").fillna(0).sum()
-    
-    # Calculate impact/exposure/severity scores for selected LGA.
-    total_impact_score = lga_df["impact_score"].sum() if "impact_score" in lga_df.columns else 0
-    # Map total impact score to bucket
-    if total_impact_score < 25:
-        impact_bucket = "Insignificant"
-        impact_range = "<25"
-    elif total_impact_score < 50:
-        impact_bucket = "Minor"
-        impact_range = "25–49"
-    elif total_impact_score < 100:
-        impact_bucket = "Severe"
-        impact_range = "50–99"
-    else:
-        impact_bucket = "Critical"
-        impact_range = "100+"
-    print(lga_df.head())
-    total_exposure_score = lga_df["target_score"].sum() if "target_score" in lga_df.columns else 0
-    severity_score = lga_df["severity_score"].sum() if "severity_score" in lga_df.columns and not lga_df.empty else 0
+
     event_count = len(lga_df)
-    avg_impact_score = total_impact_score / event_count if event_count > 0 else 0
+    impact_scores = pd.to_numeric(lga_df["impact_score"], errors="coerce").fillna(0)
+    avg_impact = float(impact_scores.mean()) if event_count > 0 else 0.0
+
+    # Map avg impact (0–4) to band
+    if avg_impact <= 0:
+        impact_bucket = "Minimal"
+        impact_range = "0"
+    elif avg_impact <= 2.0:
+        impact_bucket = "Low"
+        impact_range = "0–2"
+    elif avg_impact <= 3.0:
+        impact_bucket = "Moderate"
+        impact_range = "2–3"
+    else:
+        impact_bucket = "High"
+        impact_range = "3–4"
 
     return {
         "event_count": event_count,
         "total_deaths": int(total_deaths),
         "civilian_deaths": int(civilian_deaths),
-        "total_impact_score": round(total_impact_score, 2),
-            "impact_bucket": impact_bucket,
-            "impact_range": impact_range,
-        "total_exposure_score": round(total_exposure_score, 2),
-        "severity_score": int(severity_score),
-        "avg_impact_score": round(avg_impact_score, 2),
-        "high_impact_event_count": int((pd.to_numeric(lga_df["impact_score"], errors="coerce").fillna(0) >= EXPOSURE_RISK_THRESHOLD).sum()) if "impact_score" in lga_df.columns else 0,
+        "avg_impact": round(avg_impact, 2),
+        "impact_bucket": impact_bucket,
+        "impact_range": impact_range,
         "actors": build_actor_list(lga_df, actor1_col, actor2_col),
         "knowledge_df": indicator_counts(lga_df, "knowledge"),
         "resources_df": indicator_counts(lga_df, "resources"),
@@ -295,101 +309,60 @@ def summarize_lga(lga_key, filtered_df, actor1_col, actor2_col):
     }
 
 
-def classify_lga_exposure(lga_key, filtered_df, end_label):
-    lga_df = filtered_df[filtered_df["lga_key"].eq(lga_key)].copy()
-    if lga_df.empty:
-        return {
-            "exposure": "N/A",
-            "descriptor": "No events recorded",
-            "count_3m": 0,
-            "count_12m": 0,
-            "count_24m": 0,
-        }
-
-    lga_df["impact_score"] = pd.to_numeric(lga_df.get("impact_score"), errors="coerce").fillna(0)
-    qualifying = lga_df[lga_df["impact_score"] >= EXPOSURE_RISK_THRESHOLD].copy()
-
-    if qualifying.empty:
-        return {
-            "exposure": "N/A",
-            "descriptor": "No qualifying events (impact score >= 4)",
-            "count_3m": 0,
-            "count_12m": 0,
-            "count_24m": 0,
-        }
-
-    end_period = pd.Period(end_label, freq="M")
-    end_ts = end_period.to_timestamp(how="end")
-
-    def count_in_last_months(months):
-        start_period = end_period - (months - 1)
-        start_ts = start_period.to_timestamp(how="start")
-        return int(((qualifying["event_date"] >= start_ts) & (qualifying["event_date"] <= end_ts)).sum())
-
-    count_3m = count_in_last_months(3)
-    count_12m = count_in_last_months(12)
-    count_24m = count_in_last_months(24)
-
-    if count_3m >= 1:
-        return {
-            "exposure": "Highly Likely",
-            "descriptor": "Could occur within days or weeks",
-            "count_3m": count_3m,
-            "count_12m": count_12m,
-            "count_24m": count_24m,
-        }
-    if count_12m >= 1:
-        return {
-            "exposure": "Likely",
-            "descriptor": "Could occur within a year or so",
-            "count_3m": count_3m,
-            "count_12m": count_12m,
-            "count_24m": count_24m,
-        }
-    if count_24m >= 1:
-        return {
-            "exposure": "Unlikely",
-            "descriptor": "Could occur within 24+ months",
-            "count_3m": count_3m,
-            "count_12m": count_12m,
-            "count_24m": count_24m,
-        }
-
-    return {
-        "exposure": "N/A",
-        "descriptor": "No qualifying events in lookback windows",
-        "count_3m": count_3m,
-        "count_12m": count_12m,
-        "count_24m": count_24m,
-    }
-
-
 def calculate_lga_likelihood(lga_key, end_period_label, data_df):
-    """Calculate likelihood classification for LGA based on event frequency in lookback windows from end_period."""
+    """Calculate likelihood classification for LGA based on event frequency in lookback windows."""
     lga_df = data_df[data_df["lga_key"].eq(lga_key)].copy()
-    
+
     if lga_df.empty:
         return "Very Unlikely"
-    
+
     end_period = pd.Period(end_period_label, freq="M")
     end_ts = end_period.to_timestamp(how="end")
-    
-    # Check 3 months back
+
     start_3m = (end_period - 2).to_timestamp(how="start")
     if ((lga_df["event_date"] >= start_3m) & (lga_df["event_date"] <= end_ts)).any():
         return "Highly Likely"
-    
-    # Check 12 months back
+
     start_12m = (end_period - 11).to_timestamp(how="start")
     if ((lga_df["event_date"] >= start_12m) & (lga_df["event_date"] <= end_ts)).any():
         return "Likely"
-    
-    # Check 24 months back
+
     start_24m = (end_period - 23).to_timestamp(how="start")
     if ((lga_df["event_date"] >= start_24m) & (lga_df["event_date"] <= end_ts)).any():
         return "Unlikely"
-    
+
     return "Very Unlikely"
+
+
+def precompute_likelihood_vectorized(events_df, period_labels, lga_keys):
+    """Vectorized likelihood precomputation across all periods and LGAs."""
+    zeros = pd.Series(0, index=lga_keys)
+    if events_df.empty:
+        return {period: {lga: "Very Unlikely" for lga in lga_keys} for period in period_labels}
+
+    monthly_counts = (
+        events_df.groupby(["year_month", "lga_key"]).size()
+        .unstack(fill_value=0)
+        .reindex(index=period_labels, fill_value=0)
+        .reindex(columns=lga_keys, fill_value=0)
+    )
+    cum = monthly_counts.cumsum()
+
+    result = {}
+    for i, period_label in enumerate(period_labels):
+        # 3-month window: [i-2, i] → 3 months
+        c3 = cum.iloc[i] - (cum.iloc[i - 3] if i >= 3 else zeros)
+        c12 = cum.iloc[i] - (cum.iloc[i - 12] if i >= 12 else zeros)
+        c24 = cum.iloc[i] - (cum.iloc[i - 24] if i >= 24 else zeros)
+
+        likelihood = pd.Series("Very Unlikely", index=lga_keys, dtype=object)
+        likelihood[c24 >= 1] = "Unlikely"
+        likelihood[c12 >= 1] = "Likely"
+        likelihood[c3 >= 1] = "Highly Likely"
+
+        result[period_label] = likelihood.to_dict()
+
+    return result
 
 
 def dataframe_records(df):
@@ -397,40 +370,31 @@ def dataframe_records(df):
         return []
     return df.to_dict("records")
 
+
 # Load and preprocess armed clash data
 def load_armed_clash_data():
     events = pd.read_csv("acled_armed_clash.csv", low_memory=False)
-    # Ensure date and coordinates are present
     events["event_date"] = pd.to_datetime(events["event_date"], errors="coerce")
     events = events.dropna(subset=["event_date", "latitude", "longitude"]).copy()
-    # Only keep Armed clash events
     armed = events[events["sub_event_type"] == "Armed clash"].copy()
     if armed.empty:
         raise ValueError("No rows found where sub_event_type == 'Armed clash'.")
-    # Determine actor columns
     actor1_col = "actor1" if "actor1" in armed.columns else "actor_1" if "actor_1" in armed.columns else None
     actor2_col = "actor2" if "actor2" in armed.columns else "actor_2" if "actor_2" in armed.columns else None
     return armed, actor1_col, actor2_col
 
 armed, ACTOR1_COL, ACTOR2_COL = load_armed_clash_data()
 
-
-## armed, ACTOR1_COL, ACTOR2_COL = load_data()  # Removed: replaced by load_armed_clash_data()
 LGA_GDF = load_lga_boundaries()
 ARMED_JOINED = spatial_join_events(armed, LGA_GDF)
 PROJECT_LOCATIONS = load_project_locations(LGA_GDF)
 
-# Calculate impact scores
-ARMED_JOINED["impact_score"] = ARMED_JOINED.apply(
-    lambda row: calculate_impact_score(row.get("llm_target"), row.get("llm_impact_type")),
-    axis=1
-)
+# Impact score = score from llm_impact_type (0 if unassigned/unknown)
+ARMED_JOINED["impact_score"] = ARMED_JOINED["llm_impact_type"].apply(get_impact_type_score)
 
+# Target score from updated TARGET_RISK_SCORES
 ARMED_JOINED["target_score"] = ARMED_JOINED["llm_target"].apply(
     lambda t: TARGET_RISK_SCORES.get(str(t).strip() if pd.notna(t) else "None of these", 0)
-)
-ARMED_JOINED["severity_score"] = ARMED_JOINED["llm_impact_type"].apply(
-    lambda i: SEVERITY_SCORES.get(str(i).strip() if pd.notna(i) else "Unknown", 0)
 )
 
 PERIOD_LABELS = sorted(ARMED_JOINED["year_month"].unique().tolist())
@@ -447,49 +411,50 @@ VALID_LGA_VALUES = {option["value"] for option in LGA_OPTIONS}
 DEFAULT_LGA = LGA_OPTIONS[0]["value"] if LGA_OPTIONS else None
 LGA_KEYS = LGA_BASE["lga_key"].drop_duplicates().tolist()
 
-# Precompute cumulative monthly counts for fast map updates.
-MONTHLY_LGA_COUNTS = (
-    ARMED_JOINED.groupby(["year_month", "lga_key"]).size().unstack(fill_value=0)
-    .reindex(index=PERIOD_LABELS, fill_value=0)
-    .reindex(columns=LGA_KEYS, fill_value=0)
-)
-MONTHLY_TOTAL_COUNTS = ARMED_JOINED.groupby("year_month").size().reindex(PERIOD_LABELS, fill_value=0)
-CUM_LGA_COUNTS = MONTHLY_LGA_COUNTS.cumsum()
-CUM_TOTAL_COUNTS = MONTHLY_TOTAL_COUNTS.cumsum()
+# Precompute per-target-group monthly counts and impact scores for fast map updates.
+# Group 0 = all events; groups 1–5 = filtered by target_score.
+MONTHLY_LGA_COUNTS_BY_GROUP = {}
+CUM_LGA_COUNTS_BY_GROUP = {}
+MONTHLY_TOTAL_COUNTS_BY_GROUP = {}
+CUM_TOTAL_COUNTS_BY_GROUP = {}
+MONTHLY_LGA_IMPACT_SUM_BY_GROUP = {}
+CUM_LGA_IMPACT_SUM_BY_GROUP = {}
+MONTHLY_TOTAL_IMPACT_BY_GROUP = {}
+CUM_TOTAL_IMPACT_BY_GROUP = {}
 
-# Precompute cumulative monthly impact scores for fast map updates.
-MONTHLY_LGA_IMPACT_SCORES = (
-    ARMED_JOINED.groupby(["year_month", "lga_key"])["impact_score"].sum().unstack(fill_value=0)
-    .reindex(index=PERIOD_LABELS, fill_value=0)
-    .reindex(columns=LGA_KEYS, fill_value=0)
-)
-MONTHLY_TOTAL_IMPACT_SCORES = ARMED_JOINED.groupby("year_month")["impact_score"].sum().reindex(PERIOD_LABELS, fill_value=0)
-CUM_LGA_IMPACT_SCORES = MONTHLY_LGA_IMPACT_SCORES.cumsum()
-CUM_TOTAL_IMPACT_SCORES = MONTHLY_TOTAL_IMPACT_SCORES.cumsum()
+for _score in range(6):
+    _df = ARMED_JOINED if _score == 0 else ARMED_JOINED[ARMED_JOINED["target_score"] == _score]
 
-# Precompute cumulative monthly target scores for exposure overlay.
-MONTHLY_LGA_TARGET_SCORES = (
-    ARMED_JOINED.groupby(["year_month", "lga_key"])["target_score"].sum().unstack(fill_value=0)
-    .reindex(index=PERIOD_LABELS, fill_value=0)
-    .reindex(columns=LGA_KEYS, fill_value=0)
-)
-CUM_LGA_TARGET_SCORES = MONTHLY_LGA_TARGET_SCORES.cumsum()
+    _monthly_counts = (
+        _df.groupby(["year_month", "lga_key"]).size().unstack(fill_value=0)
+        .reindex(index=PERIOD_LABELS, fill_value=0)
+        .reindex(columns=LGA_KEYS, fill_value=0)
+    )
+    MONTHLY_LGA_COUNTS_BY_GROUP[_score] = _monthly_counts
+    CUM_LGA_COUNTS_BY_GROUP[_score] = _monthly_counts.cumsum()
+    _total_counts = _df.groupby("year_month").size().reindex(PERIOD_LABELS, fill_value=0)
+    MONTHLY_TOTAL_COUNTS_BY_GROUP[_score] = _total_counts
+    CUM_TOTAL_COUNTS_BY_GROUP[_score] = _total_counts.cumsum()
 
-# Precompute cumulative monthly severity scores for severity overlay.
-MONTHLY_LGA_SEVERITY_SCORES = (
-    ARMED_JOINED.groupby(["year_month", "lga_key"])["severity_score"].sum().unstack(fill_value=0)
-    .reindex(index=PERIOD_LABELS, fill_value=0)
-    .reindex(columns=LGA_KEYS, fill_value=0)
-)
-CUM_LGA_SEVERITY_SCORES = MONTHLY_LGA_SEVERITY_SCORES.cumsum()
+    _monthly_impact = (
+        _df.groupby(["year_month", "lga_key"])["impact_score"].sum().unstack(fill_value=0)
+        .reindex(index=PERIOD_LABELS, fill_value=0)
+        .reindex(columns=LGA_KEYS, fill_value=0)
+    )
+    MONTHLY_LGA_IMPACT_SUM_BY_GROUP[_score] = _monthly_impact
+    CUM_LGA_IMPACT_SUM_BY_GROUP[_score] = _monthly_impact.cumsum()
+    _total_impact = _df.groupby("year_month")["impact_score"].sum().reindex(PERIOD_LABELS, fill_value=0)
+    MONTHLY_TOTAL_IMPACT_BY_GROUP[_score] = _total_impact
+    CUM_TOTAL_IMPACT_BY_GROUP[_score] = _total_impact.cumsum()
 
-# Precompute likelihood classifications for each period (for fast likelihood map updates).
-LIKELIHOOD_BY_PERIOD = {}
-for period_label in PERIOD_LABELS:
-    LIKELIHOOD_BY_PERIOD[period_label] = {
-        lga_key: calculate_lga_likelihood(lga_key, period_label, ARMED_JOINED)
-        for lga_key in LGA_KEYS
-    }
+# Precompute likelihood for each target group using vectorized approach.
+LIKELIHOOD_BY_PERIOD_AND_GROUP = {}
+for _score in range(6):
+    _df = ARMED_JOINED if _score == 0 else ARMED_JOINED[ARMED_JOINED["target_score"] == _score]
+    LIKELIHOOD_BY_PERIOD_AND_GROUP[_score] = precompute_likelihood_vectorized(_df, PERIOD_LABELS, LGA_KEYS)
+
+# Keep backward-compat alias for callbacks that use group 0
+LIKELIHOOD_BY_PERIOD = LIKELIHOOD_BY_PERIOD_AND_GROUP[0]
 
 
 def build_slider_marks(period_labels, interval=6):
@@ -503,11 +468,10 @@ def build_slider_marks(period_labels, interval=6):
 SLIDER_MARKS = build_slider_marks(PERIOD_LABELS)
 
 
-def filter_data(range_values):
+def filter_data(range_values, target_score=0):
     if not range_values or len(range_values) != 2:
         start_index, end_index = 0, len(PERIOD_LABELS) - 1
     else:
-        # Dash slider values can arrive as numeric types; normalize safely for indexing.
         start_index = int(round(range_values[0]))
         end_index = int(round(range_values[1]))
 
@@ -519,7 +483,10 @@ def filter_data(range_values):
     start_label = PERIOD_LABELS[start_index]
     end_label = PERIOD_LABELS[end_index]
     mask = (ARMED_JOINED["year_month"] >= start_label) & (ARMED_JOINED["year_month"] <= end_label)
-    return ARMED_JOINED.loc[mask].copy(), start_label, end_label
+    df = ARMED_JOINED.loc[mask].copy()
+    if target_score != 0:
+        df = df[df["target_score"] == target_score].copy()
+    return df, start_label, end_label
 
 
 def normalize_range_indices(range_values):
@@ -554,46 +521,44 @@ def extract_lga_from_click(click_data):
     return None
 
 
-def build_map_dataframe(filtered_df):
-    counts = (
-        filtered_df.groupby("lga_key").size().rename("events_in_range").reset_index()
-        if not filtered_df.empty
-        else pd.DataFrame(columns=["lga_key", "events_in_range"])
-    )
-    map_df = LGA_BASE.drop(columns=["geometry"]).merge(counts, on="lga_key", how="left")
-    map_df["events_in_range"] = map_df["events_in_range"].fillna(0).astype(int)
-    return map_df
-
-
-def get_range_counts(start_index, end_index):
+def get_range_counts(start_index, end_index, target_score=0):
+    cum = CUM_LGA_COUNTS_BY_GROUP[target_score]
+    cum_total = CUM_TOTAL_COUNTS_BY_GROUP[target_score]
     if start_index == 0:
-        lga_counts = CUM_LGA_COUNTS.iloc[end_index]
-        total_events = int(CUM_TOTAL_COUNTS.iloc[end_index])
+        lga_counts = cum.iloc[end_index]
+        total_events = int(cum_total.iloc[end_index])
     else:
-        lga_counts = CUM_LGA_COUNTS.iloc[end_index] - CUM_LGA_COUNTS.iloc[start_index - 1]
-        total_events = int(CUM_TOTAL_COUNTS.iloc[end_index] - CUM_TOTAL_COUNTS.iloc[start_index - 1])
+        lga_counts = cum.iloc[end_index] - cum.iloc[start_index - 1]
+        total_events = int(cum_total.iloc[end_index] - cum_total.iloc[start_index - 1])
     return lga_counts, total_events
 
 
-def get_range_impact_scores(start_index, end_index):
+def get_range_impact_avg(start_index, end_index, target_score=0):
+    """Return per-LGA average impact score for the date range."""
+    cum_sum = CUM_LGA_IMPACT_SUM_BY_GROUP[target_score]
+    cum_cnt = CUM_LGA_COUNTS_BY_GROUP[target_score]
     if start_index == 0:
-        lga_impact_scores = CUM_LGA_IMPACT_SCORES.iloc[end_index]
-        total_impact = float(CUM_TOTAL_IMPACT_SCORES.iloc[end_index])
+        lga_impact_sum = cum_sum.iloc[end_index]
+        lga_counts = cum_cnt.iloc[end_index]
     else:
-        lga_impact_scores = CUM_LGA_IMPACT_SCORES.iloc[end_index] - CUM_LGA_IMPACT_SCORES.iloc[start_index - 1]
-        total_impact = float(CUM_TOTAL_IMPACT_SCORES.iloc[end_index] - CUM_TOTAL_IMPACT_SCORES.iloc[start_index - 1])
-    return lga_impact_scores, total_impact
+        lga_impact_sum = cum_sum.iloc[end_index] - cum_sum.iloc[start_index - 1]
+        lga_counts = cum_cnt.iloc[end_index] - cum_cnt.iloc[start_index - 1]
+    # Average: sum / count; 0 where no events
+    lga_avg = lga_impact_sum.copy()
+    mask = lga_counts > 0
+    lga_avg[mask] = lga_impact_sum[mask] / lga_counts[mask]
+    lga_avg[~mask] = 0.0
+    return lga_avg
 
 
-def build_map_dataframe_from_indices(start_index, end_index, metric="threat"):
+def build_map_dataframe_from_indices(start_index, end_index, metric="threat", target_score=0):
     if metric == "impact":
-        lga_values, _ = get_range_impact_scores(start_index, end_index)
-        value_col_name = "total_impact_score"
+        lga_values = get_range_impact_avg(start_index, end_index, target_score)
+        value_col_name = "avg_impact_score"
     else:
-        lga_values, _ = get_range_counts(start_index, end_index)
+        lga_values, _ = get_range_counts(start_index, end_index, target_score)
         value_col_name = "events_in_range"
 
-    # Convert Series to DataFrame, handling the index carefully
     values_df = lga_values.to_frame(name=value_col_name).reset_index()
     values_df.columns = ["lga_key", value_col_name]
 
@@ -602,50 +567,15 @@ def build_map_dataframe_from_indices(start_index, end_index, metric="threat"):
     return map_df
 
 
-def build_exposure_map_dataframe(start_index, end_index):
-    """Sum of llm_target associated scores per LGA for the selected time range."""
-    if start_index == 0:
-        lga_target_scores = CUM_LGA_TARGET_SCORES.iloc[end_index]
-    else:
-        lga_target_scores = CUM_LGA_TARGET_SCORES.iloc[end_index] - CUM_LGA_TARGET_SCORES.iloc[start_index - 1]
-
-    values_df = lga_target_scores.to_frame(name="exposure_score").reset_index()
-    values_df.columns = ["lga_key", "exposure_score"]
-
-    map_df = LGA_BASE.drop(columns=["geometry"]).merge(values_df, on="lga_key", how="left")
-    map_df["exposure_score"] = map_df["exposure_score"].fillna(0).astype(float)
-    return map_df
-
-
-def build_severity_map_dataframe(start_index, end_index):
-    """Sum of severity_score per LGA for the selected time range."""
-    if start_index == 0:
-        lga_severity_scores = CUM_LGA_SEVERITY_SCORES.iloc[end_index]
-    else:
-        lga_severity_scores = CUM_LGA_SEVERITY_SCORES.iloc[end_index] - CUM_LGA_SEVERITY_SCORES.iloc[start_index - 1]
-
-    values_df = lga_severity_scores.to_frame(name="severity_score").reset_index()
-    values_df.columns = ["lga_key", "severity_score"]
-
-    map_df = LGA_BASE.drop(columns=["geometry"]).merge(values_df, on="lga_key", how="left")
-    map_df["severity_score"] = map_df["severity_score"].fillna(0).astype(float)
-    return map_df
-
-
-def build_risk_map_dataframe(start_index, end_index):
-    """Combine impact band and likelihood band via RISK_MATRIX to produce per-LGA risk level."""
+def build_risk_map_dataframe(start_index, end_index, target_score=0):
+    """Per-LGA risk level from avg impact band × likelihood band."""
     end_label = PERIOD_LABELS[end_index]
 
-    # Impact scores for the range
-    if start_index == 0:
-        lga_impact = CUM_LGA_IMPACT_SCORES.iloc[end_index]
-    else:
-        lga_impact = CUM_LGA_IMPACT_SCORES.iloc[end_index] - CUM_LGA_IMPACT_SCORES.iloc[start_index - 1]
+    lga_avg_impact = get_range_impact_avg(start_index, end_index, target_score)
+    impact_series = lga_avg_impact.reindex(LGA_KEYS, fill_value=0)
+    impact_bands = pd.cut(impact_series, bins=IMPACT_BINS, labels=[0, 1, 2, 3], right=True).astype(int)
 
-    impact_series = lga_impact.reindex(LGA_KEYS, fill_value=0)
-    impact_bands = pd.cut(impact_series, bins=IMPACT_BINS, labels=[0, 1, 2, 3], right=False).astype(int)
-
-    likelihood_labels = LIKELIHOOD_BY_PERIOD[end_label]
+    likelihood_labels = LIKELIHOOD_BY_PERIOD_AND_GROUP[target_score][end_label]
     likelihood_bands = pd.Series(
         {lga_key: LIKELIHOOD_BAND_MAP.get(likelihood_labels.get(lga_key, "Very Unlikely"), 0) for lga_key in LGA_KEYS},
         dtype=int,
@@ -668,19 +598,18 @@ def build_risk_map_dataframe(start_index, end_index):
     return map_df
 
 
-def build_likelihood_map_dataframe(end_index):
-    """Build map with likelihood classifications based on lookback windows from end_period."""
+def build_likelihood_map_dataframe(end_index, target_score=0):
+    """Likelihood map using per-group precomputed data."""
     end_label = PERIOD_LABELS[end_index]
-    likelihood_scores = LIKELIHOOD_BY_PERIOD[end_label]
-    
-    # Map classification to numeric score for coloring
+    likelihood_scores = LIKELIHOOD_BY_PERIOD_AND_GROUP[target_score][end_label]
+
     likelihood_numeric_map = {
         "Very Unlikely": 0,
         "Unlikely": 1,
         "Likely": 2,
         "Highly Likely": 3,
     }
-    
+
     values_df = pd.DataFrame([
         {
             "lga_key": lga_key,
@@ -694,22 +623,22 @@ def build_likelihood_map_dataframe(end_index):
     return map_df
 
 
-@lru_cache(maxsize=128)
-def build_base_map_figure(start_index, end_index, metric="threat"):
+@lru_cache(maxsize=256)
+def build_base_map_figure(start_index, end_index, metric="threat", target_score=0):
     range_color = None
     if metric == "impact":
-        map_df = build_map_dataframe_from_indices(start_index, end_index, metric="impact")
+        map_df = build_map_dataframe_from_indices(start_index, end_index, metric="impact", target_score=target_score)
         map_df["impact_band"] = pd.cut(
-            map_df["total_impact_score"],
-            bins=[-float("inf"), 25, 50, 100, float("inf")],
+            map_df["avg_impact_score"],
+            bins=IMPACT_BINS,
             labels=[0, 1, 2, 3],
-            right=False,
+            right=True,
         ).astype(int)
         color_col = "impact_band"
         title_text = "Impact"
         hover_data = {
             "statename": True,
-            "total_impact_score": True,
+            "avg_impact_score": True,
             "impact_band": False,
             "lga_key": False,
         }
@@ -724,36 +653,10 @@ def build_base_map_figure(start_index, end_index, metric="threat"):
             "title": title_text,
             "tickmode": "array",
             "tickvals": [0, 1, 2, 3],
-            "ticktext": ["Insignificant (<25)", "Minor (25–49)", "Severe (50–99)", "Critical (100+)"],
+            "ticktext": ["Minimal (0)", "Low (0–2)", "Moderate (2–3)", "High (3–4)"],
         }
-    elif metric == "exposure":
-        map_df = build_exposure_map_dataframe(start_index, end_index)
-        color_col = "exposure_score"
-        title_text = "Exposure"
-        hover_data = {
-            "statename": True,
-            color_col: True,
-            "lga_key": False,
-        }
-        color_scale = [[0.0, "#ffffff"], [1.0, "#7c3aed"]]
-        colorbar = {"title": title_text}
-    elif metric == "severity":
-        map_df = build_severity_map_dataframe(start_index, end_index)
-        color_col = "severity_score"
-        title_text = "Severity"
-        hover_data = {
-            "statename": True,
-            color_col: True,
-            "lga_key": False,
-        }
-        color_scale = [
-            (0.0, "#dcfce7"),
-            (0.5, "#16a34a"),
-            (1.0, "#14532d"),
-        ]
-        colorbar = {"title": title_text}
     elif metric == "likelihood":
-        map_df = build_likelihood_map_dataframe(end_index)
+        map_df = build_likelihood_map_dataframe(end_index, target_score)
         color_col = "likelihood_numeric"
         title_text = "Likelihood"
         hover_data = {
@@ -763,10 +666,10 @@ def build_base_map_figure(start_index, end_index, metric="threat"):
             "lga_key": False,
         }
         color_scale = [
-            (0.0, "#e0f2fe"),   # very light blue
-            (0.33, "#7dd3fc"),   # light blue
-            (0.66, "#38bdf8"),   # medium blue
-            (1.0, "#0369a1"),    # darker blue
+            (0.0, "#e0f2fe"),
+            (0.33, "#7dd3fc"),
+            (0.66, "#38bdf8"),
+            (1.0, "#0369a1"),
         ]
         range_color = [0, 3]
         colorbar = {
@@ -776,7 +679,7 @@ def build_base_map_figure(start_index, end_index, metric="threat"):
             "ticktext": ["Very Unlikely", "Unlikely", "Likely", "Highly Likely"],
         }
     elif metric == "risk":
-        map_df = build_risk_map_dataframe(start_index, end_index)
+        map_df = build_risk_map_dataframe(start_index, end_index, target_score)
         color_col = "risk_band"
         title_text = "Risk"
         hover_data = {
@@ -785,12 +688,11 @@ def build_base_map_figure(start_index, end_index, metric="threat"):
             "risk_band": False,
             "lga_key": False,
         }
-        # Explicit color scale for risk bands: 0=Low (green), 1=Medium (yellow), 2=High (orange), 3=Very High (red)
         color_scale = [
-            [0.0, "#00B050"],   # Low (green)
-            [0.33, "#FFFF00"],  # Medium (yellow)
-            [0.66, "#FF8C00"],  # High (orange)
-            [1.0, "#FF0000"],   # Very High (red)
+            [0.0, "#00B050"],
+            [0.33, "#FFFF00"],
+            [0.66, "#FF8C00"],
+            [1.0, "#FF0000"],
         ]
         range_color = [0, 3]
         colorbar = {
@@ -800,7 +702,7 @@ def build_base_map_figure(start_index, end_index, metric="threat"):
             "ticktext": ["Low", "Medium", "High", "Very High"],
         }
     else:  # threat
-        map_df = build_map_dataframe_from_indices(start_index, end_index, metric="threat")
+        map_df = build_map_dataframe_from_indices(start_index, end_index, metric="threat", target_score=target_score)
         color_col = "events_in_range"
         title_text = "Threat"
         hover_data = {
@@ -871,9 +773,9 @@ def build_base_map_figure(start_index, end_index, metric="threat"):
     return figure.to_dict()
 
 
-def build_map_figure(range_values, selected_lga=None, metric="threat"):
+def build_map_figure(range_values, selected_lga=None, metric="threat", target_score=0):
     start_index, end_index = normalize_range_indices(range_values)
-    figure = go.Figure(build_base_map_figure(start_index, end_index, metric=metric))
+    figure = go.Figure(build_base_map_figure(start_index, end_index, metric=metric, target_score=target_score))
 
     if selected_lga and selected_lga in VALID_LGA_VALUES:
         selected_shape = LGA_BASE[LGA_BASE["lga_key"].eq(selected_lga)]
@@ -951,7 +853,6 @@ def build_lga_events_figure(filtered_df, selected_lga):
     else:
         lga_df["event_note_short"] = ""
 
-    # Fit map to selected LGA bounds with padding so full boundary is visible.
     selected_shape = LGA_BASE[LGA_BASE["lga_key"].eq(selected_lga)]
     if not selected_shape.empty:
         geom = selected_shape.iloc[0].geometry
@@ -968,7 +869,6 @@ def build_lga_events_figure(filtered_df, selected_lga):
         map_center = MAP_CENTER if pd.isna(mean_lat) or pd.isna(mean_lon) else {"lat": mean_lat, "lon": mean_lon}
         dynamic_zoom = 9.0
 
-    # Apply small deterministic jitter so stacked events are individually clickable.
     lga_df = lga_df.reset_index(drop=True)
     lga_df["lat_plot"] = lga_df["latitude"]
     lga_df["lon_plot"] = lga_df["longitude"]
@@ -992,7 +892,6 @@ def build_lga_events_figure(filtered_df, selected_lga):
         hover_data={"lat_plot": False, "lon_plot": False},
     )
 
-    # Draw selected LGA boundary as explicit map lines for reliable visibility.
     if not selected_shape.empty:
         boundary = selected_shape.iloc[0].geometry.boundary
 
@@ -1084,12 +983,14 @@ def build_lga_events_figure(filtered_df, selected_lga):
 
 
 INITIAL_RANGE = [0, len(PERIOD_LABELS) - 1]
-INITIAL_FILTERED_DF, INITIAL_START_LABEL, INITIAL_END_LABEL = filter_data(INITIAL_RANGE)
+INITIAL_TARGET_SCORE = 5
+INITIAL_FILTERED_DF, INITIAL_START_LABEL, INITIAL_END_LABEL = filter_data(INITIAL_RANGE, INITIAL_TARGET_SCORE)
 INITIAL_STATUS_TEXT = (
     f"Month-Year range: {INITIAL_START_LABEL} to {INITIAL_END_LABEL} | "
+    f"Target group: {TARGET_GROUP_NAMES[INITIAL_TARGET_SCORE]} | "
     f"Total Armed clash events: {len(INITIAL_FILTERED_DF)}"
 )
-INITIAL_MAP_FIGURE = build_map_figure(INITIAL_RANGE, DEFAULT_LGA, metric="risk")
+INITIAL_MAP_FIGURE = build_map_figure(INITIAL_RANGE, DEFAULT_LGA, metric="risk", target_score=INITIAL_TARGET_SCORE)
 INITIAL_EVENTS_MAP_FIGURE = build_lga_events_figure(INITIAL_FILTERED_DF, DEFAULT_LGA)
 INITIAL_EVENTS_MAP_TITLE = "Events in selected LGA"
 INITIAL_EVENT_CLICK_TEXT = "Click an event dot on the map to view details, or select a row in the table below."
@@ -1191,13 +1092,13 @@ app.layout = html.Div(
                     className="page-subtitle",
                 ),
                 html.P(
-                    "Risk* = Impact × Likelihood. Impact* = Exposure × Severity.",
+                    "Risk = Impact × Likelihood. ",
                     className="risk-definition-note",
                 ),
             ],
             className="hero",
         ),
-        # Controls and main map at the top
+        # Controls
         html.Div(
             [
                 html.Div(
@@ -1218,6 +1119,18 @@ app.layout = html.Div(
                 ),
                 html.Div(
                     [
+                        html.Label("Target Group", className="control-label"),
+                        dcc.Dropdown(
+                            id="target-group-dropdown",
+                            options=TARGET_GROUP_OPTIONS,
+                            value="5",
+                            clearable=False,
+                        ),
+                    ],
+                    className="control-card",
+                ),
+                html.Div(
+                    [
                         html.Label("Selected LGA", className="control-label"),
                         dcc.Dropdown(
                             id="lga-dropdown",
@@ -1230,87 +1143,47 @@ app.layout = html.Div(
                 ),
             ],
             className="controls-grid",
-            style={"display": "flex", "flexDirection": "column", "gap": "16px", "width": "100%"},
+            style={"display": "grid", "gridTemplateColumns": "2fr 1fr 1fr", "gap": "16px", "width": "100%"},
         ),
         html.Div(INITIAL_STATUS_TEXT, id="status-bar", className="status-bar"),
-        html.Div([
-            dcc.Loading(
-                id="lga-map-loading",
-                type="circle",
-                color="#334155",
-                delay_show=250,
-                overlay_style={"visibility": "visible", "filter": "none", "backgroundColor": "rgba(255,255,255,0.20)"},
-                children=dcc.Graph(
-                    id="lga-map",
-                    figure=INITIAL_MAP_FIGURE,
-                    className="map-panel",
-                    config={"displayModeBar": False},
+        html.Div(
+            [
+                html.Span("Overlay:", style={"fontSize": "12px", "fontWeight": "700", "color": "#475569", "textTransform": "uppercase", "letterSpacing": "0.04em", "marginRight": "14px", "whiteSpace": "nowrap"}),
+                dcc.RadioItems(
+                    id="metric-selector",
+                    options=[
+                        {"label": html.Span(["Threat ", html.Span("i", className="info-icon", **{"data-tooltip": "Count of armed clash events in the selected period"})], className="overlay-option-label"), "value": "threat"},
+                        {"label": html.Span(["Likelihood ", html.Span("i", className="info-icon", **{"data-tooltip": "How likely an armed clash event is to occur in a given upcoming timeframe (within weeks, within a year, within 2 years), based on historical frequency for the selected target group"})], className="overlay-option-label"), "value": "likelihood"},
+                        {"label": html.Span(["Impact ", html.Span("i", className="info-icon", **{"data-tooltip": "Average impact type score (Low/Moderate=2, Substantial/High=4, unknown=0)"})], className="overlay-option-label"), "value": "impact"},
+                        {"label": html.Span(["Risk ", html.Span("i", className="info-icon", **{"data-tooltip": "Combined Impact × Likelihood risk rating"})], className="overlay-option-label"), "value": "risk"},
+                    ],
+                    value="risk",
+                    inline=True,
+                    labelStyle={"marginRight": "20px", "cursor": "pointer", "fontSize": "13px", "fontWeight": "500"},
+                    inputStyle={"marginRight": "6px", "cursor": "pointer"},
                 ),
+            ],
+            style={"display": "flex", "alignItems": "center", "background": "rgba(255,255,255,0.85)", "borderRadius": "14px", "padding": "10px 16px", "marginBottom": "10px", "boxShadow": "0 8px 20px rgba(15,23,42,0.05)"},
+        ),
+        dcc.Loading(
+            id="lga-map-loading",
+            type="circle",
+            color="#334155",
+            delay_show=250,
+            overlay_style={"visibility": "visible", "filter": "none", "backgroundColor": "rgba(255,255,255,0.20)"},
+            children=dcc.Graph(
+                id="lga-map",
+                figure=INITIAL_MAP_FIGURE,
+                className="map-panel",
+                config={"displayModeBar": False},
+                style={"width": "100%"},
             ),
-            html.Div(
-                [
-                    html.Label("Map Overlay", className="control-label"),
-                    dcc.RadioItems(
-                        id="metric-selector",
-                        options=[
-                            {
-                                "label": html.Span([
-                                    "Threat ",
-                                    html.Span("i", className="info-icon", **{"data-tooltip": "Count of armed clash events in the selected period"}),
-                                ], className="overlay-option-label"),
-                                "value": "threat",
-                            },
-                            {
-                                "label": html.Span([
-                                    "Exposure ",
-                                    html.Span("i", className="info-icon", **{"data-tooltip": "Sum of target scores of all events for given time period"}),
-                                ], className="overlay-option-label"),
-                                "value": "exposure",
-                            },
-                            {
-                                "label": html.Span([
-                                    "Severity ",
-                                    html.Span("i", className="info-icon", **{"data-tooltip": "Severity of event"}),
-                                ], className="overlay-option-label"),
-                                "value": "severity",
-                            },
-                            {
-                                "label": html.Span([
-                                    "Likelihood ",
-                                    html.Span("i", className="info-icon", **{"data-tooltip": "Probability of event in next week, month, year, or 2 years based on historical frequency"}),
-                                ], className="overlay-option-label"),
-                                "value": "likelihood",
-                            },
-                            {
-                                "label": html.Span([
-                                    "Impact* ",
-                                    html.Span("i", className="info-icon", **{"data-tooltip": "Exposure × Severity. The total score is mapped into 4 buckets: Insignificant (<25), Minor (25–49), Severe (50–99), Critical (100+)"}),
-                                ], className="overlay-option-label"),
-                                "value": "impact",
-                            },
-                            {
-                                "label": html.Span([
-                                    "Risk ",
-                                    html.Span("i", className="info-icon", **{"data-tooltip": "Combined Impact × Likelihood risk rating"}),
-                                ], className="overlay-option-label"),
-                                "value": "risk",
-                            },
-                        ],
-                        value="risk",
-                        inline=False,
-                        labelStyle={"display": "block", "marginBottom": "8px", "cursor": "pointer", "width": "100%"},
-                        inputStyle={"marginRight": "8px", "cursor": "pointer"},
-                    ),
-                ],
-                className="control-card",
-                style={"minWidth": "260px", "maxWidth": "340px", "marginLeft": "24px"},
-            ),
-        ], style={"display": "flex", "alignItems": "flex-start", "gap": "0", "width": "100%"}),
-        # Details section for selected LGA (with risk score)
+        ),
+        # Details section
         html.Div([
             html.Div(id="details-section"),
         ], className="details-panel"),
-        # LGA events map and indicators below details
+        # LGA events map
         html.Div(INITIAL_EVENTS_MAP_TITLE, id="events-map-title", className="status-bar"),
         dcc.Loading(
             id="events-map-loading",
@@ -1325,13 +1198,12 @@ app.layout = html.Div(
                 config={"displayModeBar": False},
             ),
         ),
-        html.Div(id="actors-section"),
         html.Div(
             [
                 html.Span("Bottom map legend:", style={"fontWeight": "700", "marginRight": "12px"}),
-                html.Span("\u25cf", style={"color": "#2563eb", "fontSize": "16px", "marginRight": "6px"}),
+                html.Span("●", style={"color": "#2563eb", "fontSize": "16px", "marginRight": "6px"}),
                 html.Span("Projects", style={"marginRight": "16px"}),
-                html.Span("\u25cf", style={"color": "#e11d48", "fontSize": "16px", "marginRight": "6px"}),
+                html.Span("●", style={"color": "#e11d48", "fontSize": "16px", "marginRight": "6px"}),
                 html.Span("Events (jittered if overlapping — see table for full notes)"),
             ],
             className="status-bar",
@@ -1390,11 +1262,12 @@ app.layout = html.Div(
             ],
             className="details-card",
         ),
+        html.Div(id="actors-section", style={"marginTop": "20px"}),
         html.Div([
             html.Div(id="knowledge-table"),
             html.Div(id="resources-table"),
             html.Div(id="expectation-table"),
-        ], className="detail-grid"),
+        ], className="detail-grid", style={"marginTop": "24px"}),
         html.Div(id="details-bottom-panel", className="details-panel"),
     ],
     className="page-shell",
@@ -1439,32 +1312,6 @@ app.index_string = """
                 color: #334155;
             }
             .risk-definition-note {
-                /* ...existing styles... */
-            }
-            .impact-bucket-card {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                background: #ede9fe;
-                border-radius: 14px;
-                padding: 18px 22px 14px 22px;
-                margin-bottom: 18px;
-                box-shadow: 0 4px 16px rgba(124, 58, 237, 0.07);
-                min-width: 180px;
-                max-width: 320px;
-            }
-            .impact-bucket-value {
-                font-size: 2.1rem;
-                font-weight: 700;
-                color: #5b21b6;
-                margin-bottom: 2px;
-            }
-            .impact-bucket-desc {
-                font-size: 1.05rem;
-                color: #3730a3;
-                font-weight: 500;
-                margin-bottom: 0;
-            }
                 margin: 8px 0 0;
                 font-size: 13px;
                 font-weight: 700;
@@ -1473,7 +1320,7 @@ app.index_string = """
             }
             .controls-grid {
                 display: grid;
-                grid-template-columns: 2fr 1fr 0.8fr;
+                grid-template-columns: 2fr 1fr 1fr;
                 gap: 16px;
                 margin-bottom: 16px;
             }
@@ -1578,6 +1425,8 @@ app.index_string = """
                 box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
                 margin-bottom: 18px;
                 height: 68vh;
+                flex: 1 1 0;
+                min-width: 0;
             }
             .events-map-panel {
                 background: white;
@@ -1591,12 +1440,6 @@ app.index_string = """
                 gap: 16px;
                 margin-bottom: 20px;
             }
-            .details-panel-inline {
-                display: block;
-                min-width: 220px;
-                max-width: 340px;
-                flex: 0 0 300px;
-            }
             .details-card {
                 background: #ffffff;
                 border-radius: 18px;
@@ -1609,60 +1452,59 @@ app.index_string = """
             }
             .metrics-grid {
                 display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 14px;
-                margin-bottom: 18px;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 12px;
+                margin-bottom: 0;
             }
             .metric-card {
-                padding: 16px;
-                border-radius: 16px;
-                background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
-                border: 1px solid #fed7aa;
+                padding: 14px 16px;
+                border-radius: 14px;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
             }
             .metric-label {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
-                color: #9a3412;
-                margin-bottom: 8px;
-            }
-            .metric-value {
-                font-size: 30px;
-                font-weight: 700;
-                color: #7c2d12;
-            }
-            .metric-description {
-                font-size: 12px;
                 color: #64748b;
-                margin-top: 6px;
-                font-weight: 500;
-            }
-            .exposure-card {
-                border-radius: 14px;
-                border: 1px solid #cbd5e1;
-                background: #f8fafc;
-                padding: 14px 16px;
-                margin-bottom: 16px;
-            }
-            .exposure-title {
-                font-size: 12px;
-                font-weight: 700;
-                letter-spacing: 0.05em;
-                text-transform: uppercase;
-                color: #475569;
                 margin-bottom: 6px;
             }
-            .exposure-value {
-                font-size: 24px;
-                font-weight: 800;
+            .metric-value {
+                font-size: 26px;
+                font-weight: 700;
                 color: #0f172a;
-                line-height: 1.1;
             }
-            .exposure-desc {
+            .metric-description {
+                font-size: 11px;
+                color: #94a3b8;
                 margin-top: 4px;
-                font-size: 14px;
-                color: #334155;
+                font-weight: 500;
+            }
+            .risk-banner {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+                border-radius: 14px;
+                padding: 16px 20px;
+                margin-bottom: 14px;
+            }
+            .risk-banner-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                margin-bottom: 4px;
+            }
+            .risk-banner-value {
+                font-size: 28px;
+                font-weight: 800;
+                line-height: 1;
+            }
+            .risk-banner-meta {
+                font-size: 12px;
+                opacity: 0.75;
+                margin-top: 4px;
             }
             .actors-card, .table-card {
                 background: #ffffff;
@@ -1728,23 +1570,27 @@ app.index_string = """
     Input("lga-dropdown", "value"),
     Input("metric-selector", "value"),
     Input("lga-map", "clickData"),
+    Input("target-group-dropdown", "value"),
 )
-def update_map(range_values, selected_lga, metric, click_data):
+def update_map(range_values, selected_lga, metric, click_data, target_group):
+    target_score = int(target_group) if target_group else 0
     start_index, end_index = normalize_range_indices(range_values)
     start_label = PERIOD_LABELS[start_index]
     end_label = PERIOD_LABELS[end_index]
-    _, total_events = get_range_counts(start_index, end_index)
+    _, total_events = get_range_counts(start_index, end_index, target_score)
 
     active_lga = selected_lga
     clicked_lga = extract_lga_from_click(click_data)
     if clicked_lga:
         active_lga = clicked_lga
 
+    group_label = TARGET_GROUP_NAMES.get(target_score, "All Events")
     status_text = (
         f"Month-Year range: {start_label} to {end_label} | "
+        f"Target group: {group_label} | "
         f"Total Armed clash events: {total_events}"
     )
-    return status_text, build_map_figure(range_values, active_lga, metric=metric)
+    return status_text, build_map_figure(range_values, active_lga, metric=metric, target_score=target_score)
 
 
 @app.callback(
@@ -1766,9 +1612,11 @@ def sync_dropdown_from_map(click_data, current_value):
     Input("month-range", "value"),
     Input("lga-dropdown", "value"),
     Input("lga-map", "clickData"),
+    Input("target-group-dropdown", "value"),
 )
-def update_events_map(range_values, selected_lga, click_data):
-    filtered_df, start_label, end_label = filter_data(range_values)
+def update_events_map(range_values, selected_lga, click_data, target_group):
+    target_score = int(target_group) if target_group else 0
+    filtered_df, start_label, end_label = filter_data(range_values, target_score)
     active_lga = selected_lga
     clicked_lga = extract_lga_from_click(click_data)
     if clicked_lga:
@@ -1789,9 +1637,11 @@ def update_events_map(range_values, selected_lga, click_data):
     Input("month-range", "value"),
     Input("lga-dropdown", "value"),
     Input("lga-map", "clickData"),
+    Input("target-group-dropdown", "value"),
 )
-def update_lga_events_table(range_values, selected_lga, lga_click_data):
-    filtered_df, _, _ = filter_data(range_values)
+def update_lga_events_table(range_values, selected_lga, lga_click_data, target_group):
+    target_score = int(target_group) if target_group else 0
+    filtered_df, _, _ = filter_data(range_values, target_score)
     active_lga = selected_lga
     clicked_lga = extract_lga_from_click(lga_click_data)
     if clicked_lga:
@@ -1823,73 +1673,93 @@ def update_event_click_card(click_data):
     return "Click an event dot on the map to view details, or sort/view the table below."
 
 
-
-
-
-# Callback to populate details and indicator tables for selected LGA
 @app.callback(
     Output("details-section", "children"),
+    Output("actors-section", "children"),
     Output("knowledge-table", "children"),
     Output("resources-table", "children"),
     Output("expectation-table", "children"),
     Input("month-range", "value"),
     Input("lga-dropdown", "value"),
     Input("lga-map", "clickData"),
+    Input("target-group-dropdown", "value"),
 )
-def update_details_section(range_values, selected_lga, click_data):
-    filtered_df, _, _ = filter_data(range_values)
+def update_details_section(range_values, selected_lga, click_data, target_group):
+    target_score = int(target_group) if target_group else 0
+    filtered_df, _, end_label = filter_data(range_values, target_score)
     active_lga = selected_lga
     clicked_lga = extract_lga_from_click(click_data)
     if clicked_lga:
         active_lga = clicked_lga
     if not active_lga:
-        return "", "", "", ""
+        return "", "", "", "", ""
+
     summary = summarize_lga(active_lga, filtered_df, ACTOR1_COL, ACTOR2_COL)
-    # Calculate risk score for the selected LGA and period
-    # Risk = Impact bucket × Likelihood bucket (from LIKELIHOOD_BY_PERIOD)
-    # We'll use the current period (end of selected range)
-    _, _, end_label = filter_data(range_values)
-    impact_bucket = summary['impact_bucket']
-    # Get likelihood label
-    end_period = end_label
-    likelihood_label = LIKELIHOOD_BY_PERIOD.get(end_period, {}).get(active_lga, "Very Unlikely")
-    # Map impact and likelihood to numeric for risk matrix
-    impact_band_map = {"Insignificant": 0, "Minor": 1, "Severe": 2, "Critical": 3}
+
+    # Likelihood from per-group precomputed data
+    likelihood_label = LIKELIHOOD_BY_PERIOD_AND_GROUP[target_score].get(end_label, {}).get(active_lga, "Very Unlikely")
+
+    # Impact band from avg impact score
+    avg_impact = summary["avg_impact"]
+    impact_bucket = summary["impact_bucket"]
+    impact_band_map = {"Minimal": 0, "Low": 1, "Moderate": 2, "High": 3}
     likelihood_band_map = {"Very Unlikely": 0, "Unlikely": 1, "Likely": 2, "Highly Likely": 3}
     impact_band = impact_band_map.get(impact_bucket, 0)
     likelihood_band = likelihood_band_map.get(likelihood_label, 0)
     risk_numeric = RISK_MATRIX.get((likelihood_band, impact_band), 0)
     risk_label_map = {0: "Low", 1: "Medium", 2: "High", 3: "Very High"}
     risk_label = risk_label_map.get(risk_numeric, "Low")
-    # Metrics - new order and style
-    metrics = html.Div([
+
+    risk_palette = {
+        "Low":       {"bg": "#f0fdf4", "border": "#86efac", "text": "#166534"},
+        "Medium":    {"bg": "#fefce8", "border": "#fde047", "text": "#854d0e"},
+        "High":      {"bg": "#fff7ed", "border": "#fdba74", "text": "#9a3412"},
+        "Very High": {"bg": "#fef2f2", "border": "#fca5a5", "text": "#991b1b"},
+    }
+    pal = risk_palette.get(risk_label, risk_palette["Low"])
+    risk_banner = html.Div([
         html.Div([
-            metric_card("Risk Score", risk_label, description=f"Impact: {impact_bucket}, Likelihood: {likelihood_label}"),
-        ], style={"marginBottom": "18px"}),
+            html.Div("Risk Score", className="risk-banner-label", style={"color": pal["text"]}),
+            html.Div(risk_label, className="risk-banner-value", style={"color": pal["text"]}),
+        ]),
+        html.Div(style={"width": "1px", "background": pal["border"], "alignSelf": "stretch"}),
         html.Div([
-            metric_card("Total Deaths", summary["total_deaths"]),
-            metric_card("Civilian Deaths", summary["civilian_deaths"]),
-        ], style={"display": "flex", "gap": "18px", "marginBottom": "18px"}),
+            html.Div("Impact", style={"fontSize": "11px", "fontWeight": "700", "textTransform": "uppercase", "letterSpacing": "0.05em", "color": pal["text"], "opacity": "0.7", "marginBottom": "3px"}),
+            html.Div(impact_bucket, style={"fontSize": "15px", "fontWeight": "600", "color": pal["text"]}),
+        ]),
         html.Div([
-            metric_card("Threat (Events)", summary["event_count"]),
-            metric_card("Exposure Score", summary["total_exposure_score"]),
-            metric_card("Severity Score", summary["severity_score"]),
-            metric_card("Impact Score", summary["total_impact_score"]),
-            metric_card("Likelihood", likelihood_label),
-        ], className="metrics-grid"),
-    ], className="details-card")
-    # Indicator tables
-    knowledge_table = table_block("Knowledge Indicators", dataframe_records(summary["knowledge_df"]), "No knowledge indicators.")
-    resources_table = table_block("Resource Indicators", dataframe_records(summary["resources_df"]), "No resource indicators.")
-    expectation_table = table_block("Expectation Indicators", dataframe_records(summary["expectation_df"]), "No expectation indicators.")
-    # Prominent actors section (below LGA events map, not in details)
+            html.Div("Likelihood", style={"fontSize": "11px", "fontWeight": "700", "textTransform": "uppercase", "letterSpacing": "0.05em", "color": pal["text"], "opacity": "0.7", "marginBottom": "3px"}),
+            html.Div(likelihood_label, style={"fontSize": "15px", "fontWeight": "600", "color": pal["text"]}),
+        ]),
+    ], className="risk-banner", style={"background": pal["bg"], "border": f"1px solid {pal['border']}"})
+
+    stat_row = html.Div([
+        metric_card("Threat (Events)", summary["event_count"]),
+        metric_card("Avg Impact", avg_impact, description=impact_bucket),
+        metric_card("Total Deaths", summary["total_deaths"]),
+        metric_card("Civilian Deaths", summary["civilian_deaths"]),
+        metric_card("Likelihood", likelihood_label, description={
+            "Highly Likely": "next event within ~3 months",
+            "Likely": "next event within ~12 months",
+            "Unlikely": "next event within ~24 months",
+            "Very Unlikely": "no events in past 24 months",
+        }.get(likelihood_label, "")),
+    ], className="metrics-grid")
+
+    metrics = html.Div([risk_banner, stat_row], className="details-card")
+
     actors_section = html.Div([
         html.H4("Active Actors in this LGA", className="section-title"),
         html.Ul([
             html.Li(actor, className="actor-pill") for actor in summary["actors"]
         ], className="actors-list") if summary["actors"] else html.Div("No active actors found.", className="empty-note")
     ], className="actors-card")
-    return metrics, knowledge_table, resources_table, expectation_table, actors_section
+
+    knowledge_table = table_block("Knowledge Indicators", dataframe_records(summary["knowledge_df"]), "No knowledge indicators.")
+    resources_table = table_block("Resource Indicators", dataframe_records(summary["resources_df"]), "No resource indicators.")
+    expectation_table = table_block("Expectation Indicators", dataframe_records(summary["expectation_df"]), "No expectation indicators.")
+
+    return metrics, actors_section, knowledge_table, resources_table, expectation_table
 
 
 if __name__ == "__main__":
